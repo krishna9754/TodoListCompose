@@ -1,4 +1,5 @@
 package com.example.todo.todoui
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -17,6 +18,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
@@ -24,10 +26,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 
-
 @Composable
 fun TodoUi() {
-    val tasks = remember { mutableStateListOf<String>() }
+    val context = LocalContext.current
+    val sharedPreferenceManager = remember {
+        SharedPreferenceManager(context)
+    }
+
+    var tasks by remember { mutableStateOf(sharedPreferenceManager.tasks) }
     val textState = remember { mutableStateOf("") }
 
     Column(
@@ -36,7 +42,13 @@ fun TodoUi() {
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(text = "Todo List", fontSize = 20.sp, fontWeight = FontWeight.Bold, textDecoration = TextDecoration.Underline)
+        Text(
+            text = "Todo List",
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            textDecoration = TextDecoration.Underline
+        )
+
         OutlinedTextField(
             modifier = Modifier
                 .padding(top = 10.dp, start = 30.dp, end = 30.dp)
@@ -52,7 +64,8 @@ fun TodoUi() {
                     modifier = Modifier
                         .clickable {
                             if (textState.value.isNotBlank()) {
-                                tasks.add(textState.value)
+                                tasks = tasks + textState.value
+                                sharedPreferenceManager.tasks = tasks
                                 textState.value = ""
                             }
                         }
@@ -70,8 +83,16 @@ fun TodoUi() {
         Spacer(modifier = Modifier.padding(10.dp))
         tasks.forEachIndexed { index, task ->
             TodoItem(name = task, onEdit = { newText ->
-                tasks[index] = newText
-            }) { tasks.removeAt(index) }
+                val updatedTasks = tasks.toMutableList()
+                updatedTasks[index] = newText
+                tasks = updatedTasks
+                sharedPreferenceManager.tasks = tasks
+            }) {
+                val updatedTasks = tasks.toMutableList()
+                updatedTasks.removeAt(index)
+                tasks = updatedTasks
+                sharedPreferenceManager.tasks = tasks
+            }
         }
     }
 }
@@ -146,7 +167,6 @@ fun TodoItem(name: String, onEdit: (String) -> Unit, onDelete: () -> Unit) {
         )
     }
 }
-
 
 
 @Preview(showBackground = true)
