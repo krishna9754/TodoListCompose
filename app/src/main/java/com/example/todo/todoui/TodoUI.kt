@@ -3,7 +3,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
@@ -29,12 +31,16 @@ fun TodoUi() {
     val textState = remember { mutableStateOf("") }
 
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(text = "Todo List", fontSize = 20.sp, fontWeight = FontWeight.Bold, textDecoration = TextDecoration.Underline)
         OutlinedTextField(
-            modifier = Modifier.padding(top = 10.dp).width(300.dp),
+            modifier = Modifier
+                .padding(top = 10.dp, start = 30.dp, end = 30.dp)
+                .fillMaxWidth(),
             value = textState.value,
             onValueChange = { newText -> textState.value = newText },
             label = { Text(text = "Today Task") },
@@ -77,6 +83,8 @@ fun TodoItem(name: String, onEdit: (String) -> Unit, onDelete: () -> Unit) {
 
     Row(
         modifier = Modifier
+            .padding(top = 10.dp, start = 30.dp, end = 30.dp)
+            .fillMaxWidth()
             .border(
                 width = 1.dp,
                 color = Color.Black,
@@ -90,14 +98,18 @@ fun TodoItem(name: String, onEdit: (String) -> Unit, onDelete: () -> Unit) {
             OutlinedTextField(
                 value = text,
                 onValueChange = { newText -> text = newText },
-                modifier = Modifier.padding(end = 10.dp).width(200.dp),
+                modifier = Modifier
+                    .padding(end = 10.dp)
+                    .width(200.dp),
                 maxLines = 1
             )
         } else {
             Text(
                 text = name,
                 fontSize = 15.sp,
-                modifier = Modifier.padding(end = 10.dp).width(200.dp)
+                modifier = Modifier
+                    .padding(end = 10.dp)
+                    .width(200.dp)
             )
         }
         Icon(
